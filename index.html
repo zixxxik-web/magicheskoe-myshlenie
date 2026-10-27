@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Магическое мышление</title>
+<style>
+body {
+  background: #101010;
+  color: white;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  padding: 20px;
+}
+button {
+  background: white;
+  color: black;
+  border: 0;
+  border-radius: 10px;
+  padding: 14px 20px;
+  margin: 8px;
+  font-size: 16px;
+}
+video, canvas, img {
+  width: 100%;
+  max-width: 360px;
+  border-radius: 12px;
+  margin-top: 15px;
+}
+</style>
+</head>
+<body>
+<h2>📷 Магическое мышление</h2>
+<p id="status">Нажми, чтобы начать розыгрыш</p>
+
+<button id="start">Разрешить камеру</button>
+<video id="video" autoplay playsinline hidden></video>
+<canvas id="canvas" hidden></canvas>
+<img id="photo" hidden alt="Предпросмотр фотографии">
+
+<div>
+  <button id="send" hidden>Подтвердить отправку фото</button>
+  <button id="retry" hidden>Сделать другое фото</button>
+</div>
+
+<audio id="music" controls hidden></audio>
+
+<script>
+const video = document.getElementById('video');
+const canvas = document.getElementById('canvas');
+const photo = document.getElementById('photo');
+const status = document.getElementById('status');
+const start = document.getElementById('start');
+const send = document.getElementById('send');
+const retry = document.getElementById('retry');
+
+let stream;
+
+start.onclick = async () => {
+  try {
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { exact: 'environment' } },
+        audio: false
+      });
+    } catch (error) {
+      if (error.name !== 'OverconstrainedError' &&
+          error.name !== 'NotFoundError') throw error;
+
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: 'environment' } },
+        audio: false
+      });
+    }
+
+    video.srcObject = stream;
+    video.hidden = false;
+    start.hidden = true;
+      status.textContent =
+  'Камера включена. Нажми кнопку, чтобы сделать фото.';
+      'Камера включена. Фото будет сделано через 3 секунды.';
+
+    setTimeout(() => {
+      if (!stream || !stream.active) return;
+
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(
+        video, 0, 0, canvas.width, canvas.height
+      );
+
+      photo.src = canvas.toDataURL('image/jpeg', 0.9);
+      photo.hidden = false;
+      video.hidden = true;
+      send.hidden = false;
+      retry.hidden = false;
+      status.textContent =
+        'Проверь фото. Отправка произойдёт только после подтверждения.';
+      stream.getTracks().forEach(track => track.stop());
+      stream = null;
+    }, 3000);
+  } catch (error) {
+    status.textContent =
+      'Камера недоступна. Проверь разрешения и HTTPS.';
+  }
+};
+
+retry.onclick = () => {
+  photo.hidden = true;
+  send.hidden = true;
+  retry.hidden = true;
+  start.hidden = false;
+  status.textContent = 'Нажми, чтобы начать заново.';
+};
+
+send.onclick = () => {
+  status.textContent =
+    'Предпросмотр подтверждён. Для отправки нужно подключить Telegram-бота.';
+};
+</script>
+</body>
+</html>
+
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Магическое мышление</title>
+<style>
+body {
+  background: #101010;
+  color: white;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  padding: 40px 15px;
+}
+button {
+  padding: 15px 24px;
+  margin: 10px;
+  border: 0;
+  border-radius: 12px;
+  font-size: 17px;
+  background: #2778ff;
+  color: white;
+}
+img {
+  width: 180px;
+  margin: 20px;
+  border-radius: 12px;
+}
+</style>
+</head>
+<body>
+<h1>📷 Магическое мышление</h1>
+<p>Тестовая страница готова!</p>
+
+<img src="test.jpg" alt="Тестовое изображение">
+
+<br>
+<button onclick="openCamera()">Открыть камеру</button>
+<p id="status"></p>
+
+<script>
+function openCamera() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.capture = 'environment';
+  input.onchange = () => {
+    document.getElementById('status').textContent =
+      'Изображение выбрано!';
+  };
+  input.click();
+}
+</script>
+</body>
+</html>
+
